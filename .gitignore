@@ -32,6 +32,8 @@ htmlcov/
 *~
 
 docs/*
+!docs/demo.gif
+!docs/demo.png
 
 # Local editor / annotation tooling
 .clang-format

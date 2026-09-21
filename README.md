@@ -4,6 +4,12 @@
 
 [딥러닝 Wiki](https://docs.woonyong.com/wiki/deep-learning/) · [모델·혼동행렬·학습 조건](models/manifest.json)
 
+## 데모
+
+![lrn-mnist 데모: 캔버스에 그린 7과 3을 판별하고 28×28 입력과 클래스별 점수를 표시](docs/demo.gif)
+
+`make demo` 후 `make serve` → http://127.0.0.1:8765 에서 캔버스에 7과 3을 마우스로 그리고 판별한 화면입니다. 제공 모델(`models/reference.npz`)의 실제 출력이며 두 경우 모두 해당 숫자가 100.0%로 표시됐습니다. 예시로 고른 두 장이므로 정확도를 뜻하지 않고, 점수는 보정된 confidence가 아닙니다. 모델 정확도는 [manifest](models/manifest.json)를 봅니다.
+
 ## 실행
 
 Python 3.12와 [uv](https://docs.astral.sh/uv/getting-started/installation/)가 필요합니다. 의존성은 `requirements.lock`으로 고정합니다.
