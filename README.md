@@ -4,7 +4,7 @@
 
 [딥러닝 Wiki](https://docs.woonyong.com/wiki/deep-learning/) · [모델·혼동행렬·학습 조건](models/manifest.json)
 
-## 데모
+## 구동모습
 
 ![lrn-mnist 데모: 캔버스에 그린 7과 3을 판별하고 28×28 입력과 클래스별 점수를 표시](docs/demo.gif)
 
@@ -32,6 +32,10 @@ make train
 ```
 
 ## 구현과 설계
+
+![테스트 10,000장 혼동행렬(정확도 97.8%)](docs/figure.png)
+
+혼동행렬은 [models/manifest.json](models/manifest.json)의 `evaluation.confusion_matrix` 수치를 그대로 그렸습니다(행 합계 = 테스트 10,000장).
 
 이미지 반전·crop·비율 유지·중심 정렬 → 28×28 입력 → MLP → 클래스별 점수로 이어집니다.
 
