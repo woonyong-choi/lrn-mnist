@@ -73,8 +73,16 @@ def load_model(path):
             value[:] = saved
         for name, layer in model.layers.items():
             if name.startswith("BatchNorm"):
-                layer.running_mean = data[name + "_mean"].copy()
-                layer.running_var = data[name + "_var"].copy()
+                mean, var = data[name + "_mean"], data[name + "_var"]
+                if (
+                    mean.shape != layer.running_mean.shape
+                    or var.shape != layer.running_var.shape
+                    or not np.isfinite(mean).all()
+                    or not (np.isfinite(var).all() and (var >= 0).all())
+                ):
+                    raise ValueError("invalid batchnorm statistics")
+                layer.running_mean = mean.copy()
+                layer.running_var = var.copy()
     return model, manifest["metadata"]
 
 
@@ -219,8 +227,13 @@ def recognize(model, image):
     }
 
 
-def serve(args):
-    model, _ = load_model(args.model)
+def build_server(model, port):
+    """추론 HTTP 서버를 만든다. port=0 이면 빈 포트를 OS 가 고른다(테스트용).
+
+    층이 forward 중간 상태를 self 에 저장하므로 모델은 **재진입 불가**다.
+    ThreadingHTTPServer 는 요청마다 스레드를 만들기 때문에 추론 구간 전체를
+    하나의 lock 으로 직렬화한다.
+    """
     lock = threading.Lock()
 
     class Handler(BaseHTTPRequestHandler):
@@ -263,8 +276,13 @@ def serve(args):
             self.end_headers()
             self.wfile.write(data)
 
-    print(f"http://127.0.0.1:{args.port}", flush=True)
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+
+
+def serve(args):
+    model, _ = load_model(args.model)
+    server = build_server(model, args.port)
+    print(f"http://127.0.0.1:{server.server_address[1]}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
