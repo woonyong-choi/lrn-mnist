@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-신경망 layer 모음.
-
-학생 구현 대상:
-- Affine.forward, Affine.backward
-- BatchNorm.forward, BatchNorm.backward
-- Dropout.forward, Dropout.backward
-"""
+"""신경망 layer 모음. 입력은 모두 (batch_size, feature_dim) 2차원이다."""
 
 import numpy as np
 
@@ -32,9 +25,8 @@ class Affine:
         Returns:
             (batch_size, output_dim)
         """
-        self.original_x_shape = x.shape
-        self.x = x.reshape(x.shape[0], -1)
-        return self.x @ self.W + self.b
+        self.x = x
+        return x @ self.W + self.b
 
     def backward(self, dout):
         """
@@ -49,8 +41,7 @@ class Affine:
         """
         self.dW = self.x.T @ dout
         self.db = np.sum(dout, axis=0)
-        dx = dout @ self.W.T
-        return dx.reshape(*self.original_x_shape)
+        return dout @ self.W.T
 
 
 class BatchNorm:
@@ -86,9 +77,6 @@ class BatchNorm:
         Returns:
             정규화 후 gamma, beta가 적용된 배열
         """
-        self.original_x_shape = x.shape
-        x = x.reshape(x.shape[0], -1)
-
         if train:
             mu = np.mean(x, axis=0)
             var = np.var(x, axis=0)
@@ -107,8 +95,7 @@ class BatchNorm:
             self.std = np.sqrt(self.running_var + self.eps)
             self.x_norm = self.x_centered / self.std
 
-        out = self.gamma * self.x_norm + self.beta
-        return out.reshape(*self.original_x_shape)
+        return self.gamma * self.x_norm + self.beta
 
     def backward(self, dout):
         """
@@ -120,7 +107,6 @@ class BatchNorm:
         Returns:
             dx: BatchNorm 입력 x에 대한 gradient
         """
-        dout = dout.reshape(dout.shape[0], -1)
         batch_size = dout.shape[0]
 
         self.dbeta = np.sum(dout, axis=0)
@@ -135,7 +121,7 @@ class BatchNorm:
         dx = dx_norm / self.std
         dx += dvar * 2 * self.x_centered / batch_size
         dx += dmu / batch_size
-        return dx.reshape(*self.original_x_shape)
+        return dx
 
 
 class Dropout:

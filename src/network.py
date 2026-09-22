@@ -24,7 +24,7 @@ class NeuralNetwork:
 
     def __init__(
         self,
-        hidden_sizes=None,
+        hidden_sizes,
         use_batchnorm=True,
         use_dropout=True,
         dropout_ratio=0.5,
@@ -32,7 +32,7 @@ class NeuralNetwork:
     ):
         """
         Args:
-            hidden_sizes: 은닉층 뉴런 수 목록. 기본값은 [512, 256]
+            hidden_sizes: 은닉층 뉴런 수 목록(예: [128, 64])
             use_batchnorm: 은닉층마다 BatchNorm을 넣을지 여부
             use_dropout: 은닉층마다 Dropout을 넣을지 여부
             dropout_ratio: Dropout에서 끌 뉴런 비율
@@ -43,11 +43,6 @@ class NeuralNetwork:
         self.dropout_ratio = dropout_ratio
         self.batchnorm_momentum = batchnorm_momentum
         self.params = {}
-        self.grads = {}
-
-        if hidden_sizes is None:
-            hidden_sizes = [512, 256]
-
         self.hidden_sizes = list(hidden_sizes)
         layer_sizes = [784] + self.hidden_sizes + [10]
         for idx in range(1, len(layer_sizes)):

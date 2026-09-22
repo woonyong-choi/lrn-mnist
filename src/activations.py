@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-활성화 함수 모음.
-
-학생 구현 대상:
-- ReLU.forward, ReLU.backward
-- Softmax.forward, Softmax.backward
-"""
+"""은닉층 활성화(ReLU)와 출력층 Softmax."""
 
 import numpy as np
 
@@ -60,9 +54,6 @@ class Softmax:
         Returns:
             (batch_size, num_classes) 확률. 각 행의 합은 1입니다.
         """
-        if x.ndim == 1:
-            x = x.reshape(1, -1)
-
         shifted = x - np.max(x, axis=1, keepdims=True)
         exp_x = np.exp(shifted)
         self.out = exp_x / np.sum(exp_x, axis=1, keepdims=True)
@@ -70,7 +61,8 @@ class Softmax:
 
     def backward(self, dout):
         """
-        Softmax와 Cross Entropy를 함께 미분한 gradient를 train()에서 직접 만들기 때문에
-        여기서는 받은 gradient를 그대로 통과시킵니다.
+        항등 함수다. 출력층 gradient 는 Softmax 와 Cross Entropy 를 합쳐
+        losses.cross_entropy_gradient 가 만들기 때문에(수치적으로 안정적이고 식이 짧다),
+        이 층은 역전파에서 받은 값을 그대로 넘긴다.
         """
         return dout

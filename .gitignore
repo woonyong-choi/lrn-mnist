@@ -1,57 +1,22 @@
-# MNIST 데이터 (다운로드/생성 파일)
+# MNIST 데이터 (실행 시 내려받는다)
 data/mnist.npz
-src/learning/params.pkl
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-*.egg-info/
-.eggs/
-dist/
-build/
+# 실행 산출물 (학습한 모델, 평가 결과, 벤치마크)
+.artifacts/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# 환경
-.venv/
-venv/
-env/
-
-# pytest
-.pytest_cache/
-.coverage
-htmlcov/
-
-# 기타
-.DS_Store
-*.swp
-*~
-
+# 문서 이미지 중 저장소에 남기는 것만 추적한다
 docs/*
+!docs/*.md
 !docs/demo.gif
 !docs/demo.png
 !docs/figure.png
+!docs/bench.svg
 
-# Local editor / annotation tooling
-.clang-format
-.gitattributes
-.vscode/
-
-# Annotation (auto-generated)
-.annotation/
-
+# Python / 도구
+__pycache__/
+*.py[cod]
 .venv/
-.artifacts/
-!models/reference.npz
-
-# 작업 산출물·임시 파일 (저장소에 남기지 않는다)
-.local/
-*-handoff*.md
-scratch*
-tmp*
-notes/ai-*
-*.bak
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
