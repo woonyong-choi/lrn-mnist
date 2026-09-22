@@ -80,7 +80,20 @@ make train
 - **왜 이 설정인가**: 팀 실험에서 은닉층을 [1024, 512]로 키워도 같은 98.54%에 파라미터·시간만 늘었고 [5120]도 비용 대비 이득이 제한적이었으며, Adam은 SGD보다 결과 변화 폭이 작았습니다([보고서](https://github.com/woonyong-choi/lrn-mnist/blob/6a7e451/REPORT.md) §5). 이 저장소는 그 결과를 바탕으로 5초 안에 재학습되는 작은 구성을 기준으로 삼았습니다. Dropout을 0.5에서 0.1로 낮춘 것의 단독 효과는 측정하지 않았습니다.
 - 트레이드오프: 작은 MLP는 빠르고 모델이 0.8 MB지만, 손그림처럼 MNIST와 굵기·위치가 다른 입력에 약합니다.
 
-**입출력** ([application.py](src/application.py), [web/index.html](web/index.html))
+**모듈 경계** — 파일 하나가 한 가지 일만 합니다.
+
+| 모듈 | 하는 일 |
+|---|---|
+| [layers](src/layers.py) · [activations](src/activations.py) · [losses](src/losses.py) · [optimizers](src/optimizers.py) | 층·활성화·손실·갱신 규칙의 forward/backward |
+| [network](src/network.py) | 층을 쌓고 params/grads 를 관리 |
+| [data](src/data.py) | MNIST 다운로드·sha256 검증·정규화 |
+| [training](src/training.py) | train/validation 분할, 학습 루프, 평가 |
+| [checkpoint](src/checkpoint.py) | `.npz` 저장·복원과 로드 시 검증 |
+| [images](src/images.py) | 이미지 전처리와 한 장 판별 |
+| [serving](src/serving.py) | loopback 추론 서버 |
+| [application](src/application.py) | 명령줄 배선만 (78줄) |
+
+**입출력** ([images.py](src/images.py), [checkpoint.py](src/checkpoint.py), [web/index.html](web/index.html))
 
 - 전처리는 배경이 밝으면 색을 반전하고, 숫자 영역을 잘라 긴 변을 20px로 맞춘 뒤 28×28 캔버스 중앙에 붙입니다(MNIST 규약). 빈 입력은 거절하고 전처리 결과를 화면에 보여 줍니다.
 - 모델은 weights와 BatchNorm 통계를 NumPy 배열(`.npz`)로 저장하며 **pickle을 쓰지 않습니다.** 복원할 때 shape·유한성·음수 분산을 검사해 깨진 체크포인트를 거절합니다. 복원 범위는 추론용 weights·BN 통계까지이고 optimizer 상태를 포함한 학습 재개는 지원하지 않습니다.
@@ -100,13 +113,14 @@ make train
 
 [![CI](https://github.com/woonyong-choi/lrn-mnist/actions/workflows/ci.yml/badge.svg)](https://github.com/woonyong-choi/lrn-mnist/actions/workflows/ci.yml) <!-- push 후 URL이 활성화된다. -->
 
-- `make test`(pytest 42개, 약 2초). 한 사례를 고정 seed로 못 박는 대신 **무작위 shape·값 여러 벌에 대해 성질이 항상 성립하는지**를 봅니다.
+- `make test`(pytest 48개, 약 3초). 한 사례를 고정 seed로 못 박는 대신 **무작위 shape·값 여러 벌에 대해 성질이 항상 성립하는지**를 봅니다.
   - **미분이 맞는가**: BatchNorm의 dx·dgamma·dbeta, BatchNorm 유무 양쪽의 전체 MLP gradient, Softmax+CrossEntropy 결합 gradient를 모두 유한 차분과 대조합니다.
   - **불변식**: BatchNorm 출력의 평균은 β·표준편차는 \|γ\|, Softmax 행 합은 1이고 상수 이동에 불변, 추론은 running 통계를 쓰되 갱신하지 않음, optimizer는 배열을 재바인딩하지 않음(층이 같은 객체를 참조하므로), 배치 추론과 1장 추론의 결과 동일, 전처리는 그린 위치·배경색에 불변이고 MNIST 20px 박스 규약을 지킴.
   - **회귀**: 같은 seed면 가중치가 비트 단위로 같음, Adam의 bias correction 누락 시 첫 스텝이 3.16배 커지는 것, 학습 전 BatchNorm 추론이 3162배 증폭되지 않는 것.
   - **실패 경로**: 데이터 sha256 불일치, 끊긴 다운로드가 캐시되지 않음, 손상된 체크포인트(nan·shape 불일치·음수 분산·미지원 format) 거절, 빈 입력·과대 입력 거절, 잘못된 HTTP 요청의 400/404.
   - **통합·동시성**: 실제 HTTP 서버를 띄워 10개 숫자를 동시에 보내 단일 스레드 결과와 같은지 확인하고, 서버가 추론을 실제로 직렬화하는지(lock을 빼면 실패) 검사합니다.
-- 핵심 경로 커버리지는 `layers`·`losses`·`network`·`optimizers` 100%, `data` 92%입니다(전체 78%). 학습 루프·CLI 파싱은 `make bench`·`make evaluate`가 실행 경로로 덮습니다.
+- **학습 루프도 테스트합니다**: 합성 데이터로 MNIST 다운로드 없이 학습을 돌려 loss가 내려가는지, 저장되는 체크포인트가 **validation 정확도가 가장 높았던 epoch의 것**인지(이 저장소의 평가 주장 그 자체), 평가의 혼동행렬 합이 test 장수와 같은지 확인합니다.
+- 커버리지 97%: `checkpoint`·`images`·`layers`·`losses`·`network`·`optimizers` 100%, `application` 98%, `training` 98%, `data` 92%, `serving` 81%(남은 부분은 `serve_forever` 블로킹 루프).
 - CI([ci.yml](.github/workflows/ci.yml)): ubuntu-latest에서 `uv`로 잠금 파일 그대로 설치하고 `make test`를 실행합니다. 테스트는 MNIST 다운로드 없이 돕니다.
 
 ## 배운 점·한계
