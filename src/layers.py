@@ -72,7 +72,9 @@ class BatchNorm:
         self.beta = beta
         self.momentum = momentum
         self.running_mean = np.zeros_like(beta)
-        self.running_var = np.zeros_like(beta)
+        # 분산의 초깃값은 1이다. 0으로 두면 학습 전 추론이 1/sqrt(eps) = 3162배로
+        # 증폭되고, 이동평균이 0에서 출발해 초기 running_var 가 실제보다 작아진다.
+        self.running_var = np.ones_like(beta)
         self.eps = 1e-7
 
     def forward(self, x, train=True):
