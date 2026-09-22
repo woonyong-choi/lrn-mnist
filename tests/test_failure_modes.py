@@ -140,7 +140,7 @@ def test_concurrent_requests_agree_with_single_threaded_inference():
         server.server_close()
         thread.join(timeout=5)
 
-    for digit, result in zip(digits * 3, results):
+    for digit, result in zip(digits * 3, results, strict=True):
         np.testing.assert_allclose(result["scores"], expected[digit], atol=1e-12)
 
 

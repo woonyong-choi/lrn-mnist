@@ -71,13 +71,12 @@ def inference_throughput(model, x):
     weights = [model.params[f"W{i}"] for i in (1, 2, 3)]
     rows = []
     for batch in BATCH_SIZES:
-        sample = x[:batch]
 
-        def run_full():
+        def run_full(batch=batch):
             for begin in range(0, len(x), batch):
                 model.predict(x[begin : begin + batch])
 
-        def run_gemm():
+        def run_gemm(batch=batch):
             for begin in range(0, len(x), batch):
                 chunk = x[begin : begin + batch]
                 for weight in weights:

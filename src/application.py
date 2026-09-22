@@ -108,8 +108,8 @@ def preprocess_image(image):
     pixels = np.asarray(canvas, dtype=np.float32)
     y, x = np.indices(pixels.shape)
     mass = pixels.sum()
-    dy = int(round(13.5 - (y * pixels).sum() / mass))
-    dx = int(round(13.5 - (x * pixels).sum() / mass))
+    dy = round(13.5 - (y * pixels).sum() / mass)
+    dx = round(13.5 - (x * pixels).sum() / mass)
     centered = Image.new("L", (28, 28))
     centered.paste(canvas, (dx, dy))
     return np.asarray(centered, dtype=np.float32).reshape(1, 784) / 255.0
