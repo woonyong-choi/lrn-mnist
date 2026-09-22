@@ -58,17 +58,24 @@ class NeuralNetwork:
                 self.params[f"beta{idx}"] = np.zeros(fan_out)
 
         self.layers = OrderedDict()
+        # 학습되는 층마다 (층, 그 층의 gradient 속성 -> params 키)를 미리 묶어 둔다.
+        # backward 가 매번 층 이름을 문자열로 파싱해 키를 되짚을 필요가 없다.
+        self.gradient_sources = []
         for idx in range(1, len(layer_sizes)):
-            self.layers[f"Affine{idx}"] = Affine(
-                self.params[f"W{idx}"], self.params[f"b{idx}"]
-            )
+            affine = Affine(self.params[f"W{idx}"], self.params[f"b{idx}"])
+            self.layers[f"Affine{idx}"] = affine
+            self.gradient_sources.append((affine, {"dW": f"W{idx}", "db": f"b{idx}"}))
 
             if idx < len(layer_sizes) - 1:
                 if use_batchnorm:
-                    self.layers[f"BatchNorm{idx}"] = BatchNorm(
+                    batchnorm = BatchNorm(
                         self.params[f"gamma{idx}"],
                         self.params[f"beta{idx}"],
                         momentum=batchnorm_momentum,
+                    )
+                    self.layers[f"BatchNorm{idx}"] = batchnorm
+                    self.gradient_sources.append(
+                        (batchnorm, {"dgamma": f"gamma{idx}", "dbeta": f"beta{idx}"})
                     )
                 self.layers[f"ReLU{idx}"] = ReLU()
                 if use_dropout:
@@ -104,15 +111,9 @@ class NeuralNetwork:
         for layer in reversed(self.layers.values()):
             dout = layer.backward(dout)
 
-        for name, layer in self.layers.items():
-            if name.startswith("Affine"):
-                idx = name.replace("Affine", "")
-                self.grads[f"W{idx}"] = layer.dW
-                self.grads[f"b{idx}"] = layer.db
-            elif name.startswith("BatchNorm"):
-                idx = name.replace("BatchNorm", "")
-                self.grads[f"gamma{idx}"] = layer.dgamma
-                self.grads[f"beta{idx}"] = layer.dbeta
+        for layer, attributes in self.gradient_sources:
+            for attribute, key in attributes.items():
+                self.grads[key] = getattr(layer, attribute)
 
         return dout
 
