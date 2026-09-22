@@ -23,9 +23,11 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from application import load_model, predictions, split_training  # noqa: E402
+from checkpoint import load_model  # noqa: E402
 from data import load_mnist  # noqa: E402
+
 from network import NeuralNetwork  # noqa: E402
+from training import predictions, split_training  # noqa: E402
 from optimizers import Adam  # noqa: E402
 
 BATCH_SIZES = [1, 32, 128, 256, 1024, 10000]

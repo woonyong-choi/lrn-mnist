@@ -11,7 +11,10 @@ import urllib.request
 import numpy as np
 import pytest
 
-from application import build_server, load_model, recognize, ROOT
+from checkpoint import load_model
+from images import recognize
+from paths import ROOT
+from serving import build_server
 from data import file_sha256, load_mnist
 from network import NeuralNetwork
 
@@ -50,7 +53,7 @@ def test_interrupted_download_is_not_cached(tmp_path, monkeypatch):
 
 
 def test_load_model_rejects_corrupted_batchnorm_statistics(tmp_path):
-    from application import save_model
+    from checkpoint import save_model
 
     np.random.seed(2)
     model = NeuralNetwork(hidden_sizes=[8])
@@ -142,6 +145,24 @@ def test_concurrent_requests_agree_with_single_threaded_inference():
 
     for digit, result in zip(digits * 3, results, strict=True):
         np.testing.assert_allclose(result["scores"], expected[digit], atol=1e-12)
+
+
+def test_server_serves_the_drawing_page():
+    model, _ = load_model(ROOT / "models/reference.npz")
+    server = build_server(model, 0)
+    base = f"http://127.0.0.1:{server.server_address[1]}"
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        with urllib.request.urlopen(base + "/", timeout=30) as response:
+            body = response.read()
+            assert response.headers["Content-Type"] == "text/html; charset=utf-8"
+            assert int(response.headers["Content-Length"]) == len(body)
+        assert b"<canvas" in body
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
 
 
 def test_server_rejects_malformed_requests():

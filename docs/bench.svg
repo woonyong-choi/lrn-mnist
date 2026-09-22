@@ -1,28 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" font-family="system-ui, sans-serif" font-size="12">
 <rect width="720" height="300" fill="#ffffff"/>
 <text x="46" y="24" font-size="15" fill="#182134">추론 처리량 (images/sec, 값이 클수록 좋음)</text>
-<rect x="61.7" y="237.0" width="73.3" height="17.0" fill="#2457c5"/>
-<text x="98.3" y="231.0" text-anchor="middle" fill="#182134">21,610</text>
+<rect x="61.7" y="239.8" width="73.3" height="14.2" fill="#2457c5"/>
+<text x="98.3" y="233.8" text-anchor="middle" fill="#182134">23,830</text>
 <text x="98.3" y="272.0" text-anchor="middle" fill="#4a5568">batch 1</text>
-<text x="98.3" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 21%</text>
-<rect x="166.4" y="93.1" width="73.3" height="160.9" fill="#2457c5"/>
-<text x="203.0" y="87.1" text-anchor="middle" fill="#182134">204,293</text>
+<text x="98.3" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 18%</text>
+<rect x="166.4" y="112.1" width="73.3" height="141.9" fill="#2457c5"/>
+<text x="203.0" y="106.1" text-anchor="middle" fill="#182134">238,288</text>
 <text x="203.0" y="272.0" text-anchor="middle" fill="#4a5568">batch 32</text>
-<text x="203.0" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 29%</text>
-<rect x="271.0" y="73.5" width="73.3" height="180.5" fill="#2457c5"/>
-<text x="307.7" y="67.5" text-anchor="middle" fill="#182134">229,173</text>
+<text x="203.0" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 36%</text>
+<rect x="271.0" y="101.3" width="73.3" height="152.7" fill="#2457c5"/>
+<text x="307.7" y="95.3" text-anchor="middle" fill="#182134">256,537</text>
 <text x="307.7" y="272.0" text-anchor="middle" fill="#4a5568">batch 128</text>
-<text x="307.7" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 40%</text>
-<rect x="375.7" y="60.0" width="73.3" height="194.0" fill="#2457c5"/>
-<text x="412.3" y="54.0" text-anchor="middle" fill="#182134">246,311</text>
+<text x="307.7" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 29%</text>
+<rect x="375.7" y="68.5" width="73.3" height="185.5" fill="#2457c5"/>
+<text x="412.3" y="62.5" text-anchor="middle" fill="#182134">311,513</text>
 <text x="412.3" y="272.0" text-anchor="middle" fill="#4a5568">batch 256</text>
-<text x="412.3" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 48%</text>
-<rect x="480.4" y="63.6" width="73.3" height="190.4" fill="#2457c5"/>
-<text x="517.0" y="57.6" text-anchor="middle" fill="#182134">241,797</text>
+<text x="412.3" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 32%</text>
+<rect x="480.4" y="60.0" width="73.3" height="194.0" fill="#2457c5"/>
+<text x="517.0" y="54.0" text-anchor="middle" fill="#182134">325,852</text>
 <text x="517.0" y="272.0" text-anchor="middle" fill="#4a5568">batch 1024</text>
-<text x="517.0" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 52%</text>
-<rect x="585.0" y="61.2" width="73.3" height="192.8" fill="#2457c5"/>
-<text x="621.7" y="55.2" text-anchor="middle" fill="#182134">244,780</text>
+<text x="517.0" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 38%</text>
+<rect x="585.0" y="75.1" width="73.3" height="178.9" fill="#2457c5"/>
+<text x="621.7" y="69.1" text-anchor="middle" fill="#182134">300,533</text>
 <text x="621.7" y="272.0" text-anchor="middle" fill="#4a5568">batch 10000</text>
-<text x="621.7" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 57%</text>
+<text x="621.7" y="288.0" text-anchor="middle" fill="#8892a4">GEMM 38%</text>
 </svg>

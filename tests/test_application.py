@@ -4,14 +4,10 @@ import numpy as np
 import pytest
 from PIL import Image, ImageDraw
 
-from application import (
-    load_model,
-    predictions,
-    preprocess_image,
-    save_model,
-    split_training,
-)
+from checkpoint import load_model, save_model
+from images import preprocess_image
 from network import NeuralNetwork
+from training import predictions, split_training
 
 
 def train_briefly(seed, steps=6):
